@@ -1,0 +1,98 @@
+/*
+Juego de adivinanza de un numero secreto de 4 digitos
+El jugador tiene que adivinar el numero secreto, el cual es generado aleatoriamente.  
+*/
+
+//Primero hay que colocar todas las librerias correspondientes, sino el codigo no funcionara
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
+#include <random>
+using namespace std;
+//La libreria using namespace std; es una buena practica para evitar colocar std:: cada vez que se utiliza una funcion de la libreria estandar de C++
+
+
+/* Segundo hay que generar un numero aleatorio de 4 digitos
+   para esto se utiliza la funcion shuffle de la libreria algorithm
+*/
+string numeroAleatorio()
+{
+    string digitos = "0123456789"; // Cadena de digitos del 0 al 9
+    random_device rd;
+    mt19937 g(rd());
+    shuffle(digitos.begin(), digitos.end(), g); // Mezcla los digitos aleatoriamente
+    return digitos.substr(0, 4); // Esta linea indica el maximo de digitos (4 digitos mezclados)
+}
+
+/* Tercero hay que crear la funcion intento, la cual recibe el numero secreto y el intento del jugador
+   y devuelve el resultado de la comparacion entre ambos numeros
+*/
+
+void Intento(string secreto, string intento)
+{
+    int bueno = 0, regular = 0, malo = 0; // Contadores para los resultados
+    bool usadoSecreto[4] = { false }, usadoIntento[4] = { false }; // Arreglos para marcar los digitos usados
+    // Comparamos los digitos del intento con los del secreto
+    for (int i = 0; i < 4; i++)
+    {
+        if (intento[i] == secreto[i])
+        {
+            bueno++;
+            usadoSecreto[i] = true;
+            usadoIntento[i] = true;
+        }
+    }
+    // Comparamos los digitos restantes del intento con los del secreto
+    for (int i = 0; i < 4; i++)
+    {
+        if (!usadoIntento[i])
+        {
+            for (int j = 0; j < 4; i++)
+            {
+                if (!usadoSecreto[j] && intento[i] == secreto[j])
+                {
+                    regular++;
+                    usadoSecreto[j] = true;
+                    break;
+                }
+            }
+        }
+    }
+    // Contamos los digitos que no son ni buenos ni regulares
+    malo = 4 - bueno - regular;
+    // Mostramos el resultado al jugador
+    cout << "Resultado " << bueno << " Bueno, " << regular << " Regular, " << malo << " Malo" << endl;
+}
+// Cuarta parte es la funcion main, donde se ejecuta el juego
+int main()
+{
+    srand(time(0)); // Inicializa la semilla para generar numeros aleatorios
+    string secreto = numeroAleatorio(); // Genera el numero secreto
+    string intento; // Variable para almacenar el intento del jugador
+
+    cout << "--Tendra que adivinar un numero secreto de 4 digitos--" << endl;
+    //Colocamos un while para que el jugador pueda seguir intentando hasta adivinar el numero
+    while (true)
+    {
+        cout << "Ingrese un numero de 4 digitos para intentar" << endl;
+        cin >> intento;
+        // Validamos que el intento sea un numero de 4 digitos
+        if (intento.length() != 4 || !all_of(intento.begin(), intento.end(), ::isdigit))
+        {
+            cout << "No es el numero. Intenta de nuevo" << endl; // Si no es un numero de 4 digitos, se le pide al jugador que vuelva a intentarlo
+            continue;
+        }
+        Intento(secreto, intento); // Llama a la funcion intento para comparar el numero secreto con el intento del jugador
+        if (intento == secreto)
+        {
+            cout << "Felicidades has adivinado el numero" << endl; //Una vez que el jugador ha adivinado el numero, se le felicita y se coloca un break para salir del while
+            break;
+        }
+    }
+return 0; 
+/*Fin del programa, se recomienda colocarlo ya que es una buena practica para situaciones como las anteriores donde el programa no se detiene 
+  y puede generar un bucle infinito, aunque en este caso no es necesario ya que el programa se detiene al adivinar el numero
+*/
+}
